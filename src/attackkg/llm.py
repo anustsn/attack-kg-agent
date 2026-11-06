@@ -137,8 +137,8 @@ class AnthropicSession(Session):
 _LIMIT = re.compile(r"usage limit|hit your (\w+ )?limit|limit (has been )?reached|rate.?limit", re.I)
 
 
-def extract_json_object(text: str) -> dict | None:
-    """Return the first JSON object in ``text`` that has a "tool" key, or None."""
+def extract_json_object(text: str, key: str = "tool") -> dict | None:
+    """Return the first JSON object in ``text`` that has ``key``, or None."""
     decoder = json.JSONDecoder()
     for i, ch in enumerate(text):
         if ch != "{":
@@ -147,7 +147,7 @@ def extract_json_object(text: str) -> dict | None:
             obj, _ = decoder.raw_decode(text, i)
         except ValueError:
             continue
-        if isinstance(obj, dict) and "tool" in obj:
+        if isinstance(obj, dict) and key in obj:
             return obj
     return None
 
