@@ -1,0 +1,13 @@
+# Rule 2a: an object revoked by a current (not revoked) object is replaced by it.
+# ATT&CK revokes an ID when it merges or renames a technique, group or software;
+# the old ID points to its replacement with "revoked-by".
+#
+#   Old --revokedBy--> Next, Next not revoked  =>  Old --currentReplacement--> Next
+
+INSERT {
+  ?old akg:currentReplacement ?next .
+}
+WHERE {
+  ?old akg:revokedBy ?next .
+  ?next akg:revoked false .
+}

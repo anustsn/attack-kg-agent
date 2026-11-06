@@ -1,0 +1,15 @@
+# Rule 1: a technique is observable via a log source when one of its detection
+# strategies has an analytic that reads that log source.
+#
+#   DetectionStrategy --detects--> Technique
+#   DetectionStrategy --hasAnalytic--> Analytic --usesLogSource--> LogSource
+#   =>  Technique --observableVia--> LogSource
+
+INSERT {
+  ?technique akg:observableVia ?logsource .
+}
+WHERE {
+  ?strategy akg:detects ?technique ;
+            akg:hasAnalytic ?analytic .
+  ?analytic akg:usesLogSource ?logsource .
+}

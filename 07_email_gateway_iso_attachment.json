@@ -1,0 +1,20 @@
+{
+  "id": "example-07-iso-attachment",
+  "title": "Email gateway: invoice email with ISO attachment containing a shortcut file",
+  "platform": null,
+  "log_sources": [{"name": "Application:Mail", "channel": null}],
+  "content": {
+    "gateway": "cloud email security gateway",
+    "from": "accounts@supplier-invoices.example",
+    "envelope_from": "bounce@mailer.example.net",
+    "to": ["treasury@bank.example", "ops@bank.example"],
+    "subject": "Overdue invoice 8841 - payment required today",
+    "attachments": [{"name": "Invoice_8841.iso", "size": "1.4 MB",
+                     "contents": ["Invoice_8841.lnk", "data.dll"],
+                     "lnk_target": "C:\\Windows\\System32\\rundll32.exe data.dll,Start"}],
+    "spf": "softfail", "dkim": "none", "sender_domain_age_days": 6,
+    "verdict": "delivered to 1 of 2 recipients before the sandbox verdict (malicious)"
+  },
+  "gold": ["T1566.001"],
+  "meta": {"synthetic": true, "note": "Written for this demo; no real organisation's data."}
+}

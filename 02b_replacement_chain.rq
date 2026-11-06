@@ -1,0 +1,13 @@
+# Rule 2b: replacements chain. If the replacement was itself revoked later, the
+# old ID is replaced by whatever replaced it. The reasoner re-runs the rules until
+# they add nothing new, so chains of any length resolve.
+#
+#   Old --revokedBy--> Next, Next --currentReplacement--> New  =>  Old --currentReplacement--> New
+
+INSERT {
+  ?old akg:currentReplacement ?new .
+}
+WHERE {
+  ?old akg:revokedBy ?next .
+  ?next akg:currentReplacement ?new .
+}

@@ -1,0 +1,22 @@
+{
+  "id": "example-05-local-admin",
+  "title": "Windows Security: new local account created and added to Administrators",
+  "platform": "Windows",
+  "log_sources": [
+    {"name": "WinEventLog:Security", "channel": "EventCode=4720"},
+    {"name": "WinEventLog:Security", "channel": "EventCode=4732"}
+  ],
+  "content": {
+    "host": "BR-ATM-GW-02",
+    "events": [
+      {"EventID": 4720, "time": "2026-11-02T03:11:40Z", "SubjectUserName": "helpdesk02",
+       "TargetUserName": "support$", "msg": "A user account was created."},
+      {"EventID": 4732, "time": "2026-11-02T03:11:52Z", "SubjectUserName": "helpdesk02",
+       "MemberName": "support$", "TargetUserName": "Administrators",
+       "msg": "A member was added to a security-enabled local group."}
+    ],
+    "context": "helpdesk02 normally works 09:00-18:00; no change ticket references this host."
+  },
+  "gold": ["T1136.001", "T1098.007"],
+  "meta": {"synthetic": true, "note": "Written for this demo; no real organisation's data."}
+}

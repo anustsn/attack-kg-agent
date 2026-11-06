@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "attack-kg-agent"
+version = "0.1.0"
+description = "A knowledge-graph-grounded LLM agent that maps security alerts to MITRE ATT&CK techniques and checks every answer against the graph"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Anutsetsen Enkhzorigt" }]
+dependencies = [
+    "rdflib>=7.0",
+    "PyYAML>=6.0",
+]
+
+[project.urls]
+Repository = "https://github.com/anustsn/attack-kg-agent"
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=2.5"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+attackkg = "attackkg.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+attackkg = ["rules/*.rq"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

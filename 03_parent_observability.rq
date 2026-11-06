@@ -1,0 +1,13 @@
+# Rule 3: a parent technique is observable via every log source that observes one
+# of its sub-techniques. Analysts often map an alert to the parent when the
+# evidence does not pin down the sub-technique; this keeps that mapping checkable.
+#
+#   Sub --subTechniqueOf--> Parent, Sub --observableVia--> L  =>  Parent --observableVia--> L
+
+INSERT {
+  ?parent akg:observableVia ?logsource .
+}
+WHERE {
+  ?sub akg:subTechniqueOf ?parent ;
+       akg:observableVia ?logsource .
+}

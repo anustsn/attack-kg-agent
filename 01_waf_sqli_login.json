@@ -1,0 +1,23 @@
+{
+  "id": "example-01-waf-sqli",
+  "title": "WAF: SQL injection blocked on internet banking login API",
+  "platform": null,
+  "log_sources": [{"name": "ApplicationLog:WebServer", "channel": null}],
+  "content": {
+    "sensor": "ModSecurity 3 + OWASP CRS 4 in front of nginx",
+    "timestamp": "2026-11-03T02:14:09Z",
+    "client_ip": "203.0.113.47",
+    "request": "POST /api/v1/auth/login HTTP/1.1",
+    "host": "ib.bank.example",
+    "matched_rules": [
+      {"id": 942100, "msg": "SQL Injection Attack Detected via libinjection", "data": "username=admin' OR 1=1--"},
+      {"id": 942190, "msg": "Detects MSSQL code execution and information gathering attempts"},
+      {"id": 949110, "msg": "Inbound Anomaly Score Exceeded (Total Score: 15)"}
+    ],
+    "action": "blocked (403)",
+    "requests_from_ip_last_10m": 212,
+    "distinct_paths_from_ip_last_10m": 37
+  },
+  "gold": ["T1190"],
+  "meta": {"synthetic": true, "note": "Written for this demo; no real organisation's data."}
+}

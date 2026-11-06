@@ -1,0 +1,13 @@
+# downloaded and generated data (rebuild with `attackkg fetch` and `attackkg build`)
+data/raw/
+data/kg/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+build/
+dist/

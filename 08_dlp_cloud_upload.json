@@ -1,0 +1,21 @@
+{
+  "id": "example-08-dlp-upload",
+  "title": "DLP: 2.3 GB of finance files uploaded to a personal cloud storage account",
+  "platform": "Windows",
+  "log_sources": [{"name": "NSM:Flow", "channel": null}],
+  "content": {
+    "dlp_policy": "Confidential - Customer financial data",
+    "host": "FIN-WS-0118",
+    "user": "CORP\\a.smith",
+    "process": "chrome.exe",
+    "destination": "https://mega.example/upload (personal account, not a sanctioned service)",
+    "bytes_out": 2468000000,
+    "files": 1312,
+    "file_types": ["xlsx", "csv", "pdf"],
+    "content_matches": ["account numbers (14,200)", "national ID numbers (3,950)"],
+    "time": "2026-11-01T23:40Z to 2026-11-02T00:55Z",
+    "hr_context": "user submitted resignation on 2026-10-30"
+  },
+  "gold": ["T1567.002"],
+  "meta": {"synthetic": true, "note": "Written for this demo; no real organisation's data."}
+}

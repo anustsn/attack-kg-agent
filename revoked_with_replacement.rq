@@ -1,0 +1,7 @@
+# Revoked technique IDs and the current technique that replaces each one
+# (akg:currentReplacement, inferred by rules 2a and 2b).
+SELECT ?old ?oldName ?new ?newName WHERE {
+  ?o a akg:Technique ; akg:attackId ?old ; rdfs:label ?oldName ; akg:currentReplacement ?n .
+  ?n a akg:Technique ; akg:attackId ?new ; rdfs:label ?newName .
+}
+ORDER BY ?old

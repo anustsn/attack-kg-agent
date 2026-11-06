@@ -1,0 +1,7 @@
+# Number of active techniques and sub-techniques in each tactic.
+SELECT ?tactic (COUNT(DISTINCT ?t) AS ?techniques) WHERE {
+  ?t akg:inTactic ?tac ; akg:revoked false ; akg:deprecated false .
+  ?tac rdfs:label ?tactic .
+}
+GROUP BY ?tactic
+ORDER BY DESC(?techniques)

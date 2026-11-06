@@ -1,0 +1,19 @@
+{
+  "id": "example-04-lsass-access",
+  "title": "Sysmon: rundll32 opened LSASS with full access (comsvcs MiniDump pattern)",
+  "platform": "Windows",
+  "log_sources": [{"name": "WinEventLog:Sysmon", "channel": "EventCode=10"}],
+  "content": {
+    "EventID": 10,
+    "UtcTime": "2026-11-05 22:03:51.902",
+    "Computer": "SRV-APP-07.corp.example",
+    "SourceImage": "C:\\Windows\\System32\\rundll32.exe",
+    "SourceCommandLine": "rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 712 C:\\ProgramData\\l.dmp full",
+    "TargetImage": "C:\\Windows\\System32\\lsass.exe",
+    "GrantedAccess": "0x1FFFFF",
+    "CallTrace": "C:\\Windows\\SYSTEM32\\ntdll.dll+9d4c4|C:\\Windows\\System32\\comsvcs.dll+2b7f1|...",
+    "SourceUser": "CORP\\svc_backup"
+  },
+  "gold": ["T1003.001"],
+  "meta": {"synthetic": true, "note": "Written for this demo; no real organisation's data."}
+}

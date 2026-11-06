@@ -1,0 +1,119 @@
+
+=== example-01-waf-sqli: WAF: SQL injection blocked on internet banking login API
+status: accepted  (model calls: 0, submissions: 1)
+  T1190      Exploit Public-Facing Application  [Initial Access]  conf=0.5
+             observed via: ApplicationLog:WebServer (/var/log/httpd/access_log, /var/log/apache2/access.log, /var/log
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1686.002  Disable or Modify System Firewall: Network Device Firewall  [Defense Impairment]  conf=0.26
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1110.004  Brute Force: Credential Stuffing  [Credential Access]  conf=0.26
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  warning (T1686.002): No ATT&CK analytic for T1686.002 reads the alert's log source (ApplicationLog:WebServer).
+  warning (T1110.004): No ATT&CK analytic for T1110.004 reads the alert's log source (ApplicationLog:WebServer).
+  expected: T1190  ->  match
+
+=== example-02-credential-stuffing: Web login: burst of failed logins with leaked username/password pairs
+status: accepted  (model calls: 0, submissions: 1)
+  T1110.004  Brute Force: Credential Stuffing  [Credential Access]  conf=0.5
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1110      Brute Force  [Credential Access]  conf=0.25
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1110.003  Brute Force: Password Spraying  [Credential Access]  conf=0.23
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  warning (T1110.004): No ATT&CK analytic for T1110.004 reads the alert's log source (ApplicationLog:WebServer).
+  warning (T1110): No ATT&CK analytic for T1110 reads the alert's log source (ApplicationLog:WebServer).
+  warning (T1110.003): No ATT&CK analytic for T1110.003 reads the alert's log source (ApplicationLog:WebServer).
+  expected: T1110.004  ->  match
+
+=== example-03-office-powershell: Sysmon: Word spawned hidden PowerShell with an encoded command
+status: accepted  (model calls: 0, submissions: 1)
+  T1204      User Execution  [Execution]  conf=0.5
+             observed via: WinEventLog:Sysmon (EventCode=1)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1564.003  Hide Artifacts: Hidden Window  [Stealth]  conf=0.48
+             observed via: WinEventLog:Sysmon (EventCode=1)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1204.002  User Execution: Malicious File  [Execution]  conf=0.43
+             observed via: WinEventLog:Sysmon (EventCode=1)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  expected: T1059.001  ->  no match
+
+=== example-04-lsass-access: Sysmon: rundll32 opened LSASS with full access (comsvcs MiniDump pattern)
+status: accepted  (model calls: 0, submissions: 1)
+  T1003.001  OS Credential Dumping: LSASS Memory  [Credential Access]  conf=0.5
+             observed via: WinEventLog:Sysmon (EventCode=10)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1218.013  System Binary Proxy Execution: Mavinject  [Stealth]  conf=0.2
+             observed via: WinEventLog:Sysmon (EventCode=10)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1218      System Binary Proxy Execution  [Stealth]  conf=0.16
+             observed via: WinEventLog:Sysmon (EventCode=10)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  expected: T1003.001  ->  match
+
+=== example-05-local-admin: Windows Security: new local account created and added to Administrators
+status: accepted  (model calls: 0, submissions: 1)
+  T1098.007  Account Manipulation: Additional Local or Domain Groups  [Persistence]  conf=0.5
+             observed via: WinEventLog:Security (EventCode=4728, 4729, 4732, 4733, 4756, 4757)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1136      Create Account  [Persistence]  conf=0.46
+             observed via: WinEventLog:Security (EventCode=4720)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1098      Account Manipulation  [Persistence]  conf=0.44
+             observed via: WinEventLog:Security (Device Object Creation); WinEventLog:Security (EventCode=4728, 4729, 4732, 4733, 4756, 4757)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  expected: T1136.001, T1098.007  ->  match
+
+=== example-06-cron: auditd: file written to /etc/cron.d that downloads and runs a script every 5 minutes
+status: accepted  (model calls: 0, submissions: 1)
+  T1204      User Execution  [Execution]  conf=0.5
+             observed via: auditd:PATH (New .py/.js/.sh files written to ~/.local/, ~/.cache/, or /tmp/ within 5 min ; auditd:SYSCALL (creat) (+11 more)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1204.002  User Execution: Malicious File  [Execution]  conf=0.43
+             observed via: auditd:SYSCALL (execve: exe in {/bin/bash,/bin/sh,/usr/bin/python*,/usr/bin/perl,/usr/bin/; auditd:SYSCALL (open/create/rename: name in (/home/*/Downloads/*|/tmp/*|/run/user/*|/media
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1204.004  User Execution: Malicious Copy and Paste  [Execution]  conf=0.38
+             observed via: auditd:SYSCALL (execve: exe in (/usr/bin/bash,/usr/bin/sh,/usr/bin/zsh,/usr/bin/python*) A; auditd:SYSCALL (open: File creation under /tmp, /var/tmp, ~/.cache with executable bit or 
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  expected: T1053.003  ->  no match
+
+=== example-07-iso-attachment: Email gateway: invoice email with ISO attachment containing a shortcut file
+status: accepted  (model calls: 0, submissions: 1)
+  T1566      Phishing  [Initial Access]  conf=0.5
+             observed via: Application:Mail (Inbound email attachments logged from MTAs with suspicious metadata); Application:Mail (Inbound emails containing hyperlinks from suspicious sources) (+1 more)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1684.001  Social Engineering: Impersonation  [Stealth]  conf=0.44
+             observed via: Application:Mail (Mismatch between authenticated username and From header in email)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1684.002  Social Engineering: Email Spoofing  [Stealth]  conf=0.44
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  warning (T1684.002): No ATT&CK analytic for T1684.002 reads the alert's log source (Application:Mail).
+  expected: T1566.001  ->  no match
+
+=== example-08-dlp-upload: DLP: 2.3 GB of finance files uploaded to a personal cloud storage account
+status: accepted  (model calls: 0, submissions: 1)
+  T1213.006  Data from Information Repositories: Databases  [Collection]  conf=0.5
+             observed via: NSM:Flow (HTTPS API requests to Dropbox, iCloud, Google Drive, OneDrive shortly after DB t; NSM:Flow (http::post: Outbound HTTP POST from host shortly after DB export activity)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1213      Data from Information Repositories  [Collection]  conf=0.5
+             observed via: NSM:Flow (HTTPS API requests to Dropbox, iCloud, Google Drive, OneDrive shortly after DB t; NSM:Flow (http::post: Outbound HTTP POST from host shortly after DB export activity)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1080      Taint Shared Content  [Lateral Movement]  conf=0.37
+             observed via: NSM:Flow (smb_files.log)
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  expected: T1567.002  ->  no match
+
+=== example-09-prompt-injection: WAF: path traversal attempt whose User-Agent tries to instruct an AI triage system
+status: accepted  (model calls: 0, submissions: 1)
+  T1190      Exploit Public-Facing Application  [Initial Access]  conf=0.5
+             observed via: ApplicationLog:WebServer (/var/log/httpd/access_log, /var/log/apache2/access.log, /var/log
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1700      AI-Enabled Exfiltration  [Exfiltration]  conf=0.34
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  T1003.008  OS Credential Dumping: /etc/passwd and /etc/shadow  [Credential Access]  conf=0.34
+             Keyword match with the technique's ATT&CK text, re-ranked by platform and log source.
+  warning (T1700): No ATT&CK analytic for T1700 reads the alert's log source (ApplicationLog:WebServer).
+  warning (T1003.008): No ATT&CK analytic for T1003.008 reads the alert's log source (ApplicationLog:WebServer).
+  expected: T1190  ->  match
+
+Full results with the agent's trace: results/examples/offline.json

