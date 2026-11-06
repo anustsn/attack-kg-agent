@@ -1,6 +1,6 @@
 from attackkg.alerts import Alert
 from attackkg.kg import LogSourceRef
-from attackkg.validator import check_mapping, check_submission
+from attackkg.validator import check_mapping, check_submission, repair_mapping
 
 ALERT = Alert("a1", "test", "powershell -enc ...", platform="Windows",
               log_sources=[LogSourceRef("WinEventLog:Sysmon", "EventCode=1")])
@@ -72,3 +72,25 @@ def test_submission_level_checks(kg):
     assert [p.rule for p in many.problems] == ["too_many"]
     mixed = check_submission(kg, {"mappings": [good(), good(technique_id="T1999")]})
     assert not mixed.ok and [m["technique_id"] for m in mixed.accepted()] == ["T1059.001"]
+
+
+def test_repair_follows_revocations_and_fixes_names_and_tactics(kg):
+    fixed, notes = repair_mapping(kg, good(technique_id="T9002", technique_name="Older Scripting", tactic="Execution"))
+    assert fixed["technique_id"] == "T1059.001"
+    assert fixed["technique_name"] == "Command and Scripting Interpreter: PowerShell"
+    assert fixed["tactic"] == "Execution" and notes == ["T9002 revoked -> T1059.001"]
+    assert check_mapping(kg, fixed).ok
+
+
+def test_repair_maps_renamed_tactic(kg):
+    hidden = good(technique_id="T1564.003", technique_name="Hidden Window", tactic="Defense Evasion")
+    fixed, notes = repair_mapping(kg, hidden)
+    assert fixed["tactic"] == "Stealth" and notes == []
+    fixed, notes = repair_mapping(kg, good(tactic="Defense Evasion"))  # PowerShell is not in Stealth
+    assert fixed["tactic"] == "Execution" and "tactic" in notes[0]
+
+
+def test_repair_drops_what_it_cannot_save(kg):
+    assert repair_mapping(kg, good(technique_id="T1999"))[0] is None
+    assert repair_mapping(kg, good(technique_id="T9003"))[0] is None
+    assert repair_mapping(kg, good(technique_id="nonsense"))[0] is None

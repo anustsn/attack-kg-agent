@@ -72,6 +72,31 @@ def cmd_triage(args) -> None:
         print(f"\nFull results with the agent's trace: {out}")
 
 
+def cmd_bench(args) -> None:
+    from . import bench, evaluate
+    from .llm import UsageLimitReached
+
+    run_dir = Path(args.dir)
+    if args.action == "report":
+        _, summary = evaluate.report(run_dir)
+        print(summary)
+        return
+    kg = _load_kg(args.kg)
+    if args.action == "build":
+        zip_path = config.sigma_zip_path()
+        if not zip_path.exists():
+            sys.exit(f"{zip_path} not found. Run `attackkg fetch` first.")
+        info = bench.build(kg, zip_path, config.benchmark_path(), config.SIGMA_RELEASE, n=args.n or 300, seed=args.seed)
+        print(json.dumps(info, indent=2))
+        return
+    items = bench.load(config.benchmark_path(), args.n or 100)
+    try:
+        evaluate.run(kg, items, args.system, run_dir / f"{args.system}.jsonl", backend=args.backend,
+                     model=args.model, effort=args.effort, workers=args.workers)
+    except UsageLimitReached as e:
+        sys.exit(f"Stopped: {e}\nFinished items are saved; run the same command again later to continue.")
+
+
 def _print_result(kg, alert, res) -> None:
     print(f"\n=== {alert.id}: {alert.title}")
     print(f"status: {res.status}  (model calls: {res.llm_calls}, submissions: {res.submissions})"
@@ -123,6 +148,19 @@ def main(argv: list[str] | None = None) -> None:
     s.add_argument("--no-seed", action="store_true", help="do not give the agent keyword-search candidates")
     s.add_argument("--out", help="write full results (with trace) to this JSON file")
     s.set_defaults(func=cmd_triage)
+
+    s = sub.add_parser("bench", help="build the Sigma benchmark, run a system on it, or report scores")
+    s.add_argument("action", choices=["build", "run", "report"])
+    s.add_argument("system", nargs="?", default="offline",
+                   choices=["offline", "closed-book", "closed-book+repair", "agent"])
+    s.add_argument("--n", type=int, help="items to build (default 300) or to run (default 100)")
+    s.add_argument("--seed", type=int, default=13)
+    s.add_argument("--backend", choices=["claude-cli", "anthropic"], default="claude-cli")
+    s.add_argument("--model", default=config.DEFAULT_MODEL)
+    s.add_argument("--effort", default=config.DEFAULT_EFFORT, choices=["low", "medium", "high", "xhigh", "max"])
+    s.add_argument("--workers", type=int, default=1, help="alerts processed in parallel")
+    s.add_argument("--dir", default="results/benchmark", help="where results are written")
+    s.set_defaults(func=cmd_bench)
 
     args = p.parse_args(argv)
     args.func(args)

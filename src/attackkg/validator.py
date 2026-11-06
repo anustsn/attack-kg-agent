@@ -134,6 +134,34 @@ def check_mapping(kg: KnowledgeGraph, mapping: dict, alert: Alert | None = None)
     return report
 
 
+def repair_mapping(kg: KnowledgeGraph, mapping: dict) -> tuple[dict | None, list[str]]:
+    """Fix what the graph can fix without guessing about the alert:
+    a revoked ID becomes its current replacement, the name becomes the graph's name,
+    and an old or wrong tactic becomes one the technique belongs to.
+    Returns (repaired mapping, notes), or (None, notes) when the ID cannot be saved."""
+    tid = str(mapping.get("technique_id", "")).strip().upper()
+    t = kg.get(tid) if _TID.match(tid) else None
+    if t is None:
+        return None, [f"{tid or '(none)'}: unknown ID, dropped"]
+    notes = []
+    if not t.active:
+        if not t.replaced_by:
+            return None, [f"{tid}: deprecated without replacement, dropped"]
+        notes.append(f"{tid} revoked -> {t.replaced_by}")
+        t = kg.get(t.replaced_by)
+    fixed = {**mapping, "technique_id": t.id, "technique_name": kg.full_name(t.id)}
+    text = str(mapping.get("tactic", "")).strip()
+    tactic = kg.resolve_tactic(text) if text else None
+    if tactic is None and text.lower() in RENAMED_TACTICS:
+        tactic = next(tac for tac in kg.tactics.values() if tac.id == RENAMED_TACTICS[text.lower()])
+    if tactic is None or tactic.shortname not in t.tactics:
+        new = kg.tactics[t.tactics[0]] if t.tactics else None
+        notes.append(f"{t.id}: tactic '{text}' -> '{new.name if new else ''}'")
+        tactic = new
+    fixed["tactic"] = tactic.name if tactic else ""
+    return fixed, notes
+
+
 def check_submission(kg: KnowledgeGraph, submission: dict, alert: Alert | None = None,
                      max_mappings: int = 3) -> SubmissionReport:
     mappings = submission.get("mappings")

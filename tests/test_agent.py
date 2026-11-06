@@ -2,7 +2,7 @@
 
 import json
 
-from attackkg.agent import TOOLS, ToolBox, triage, triage_offline
+from attackkg.agent import TOOLS, ToolBox, closed_book, triage, triage_offline
 from attackkg.alerts import Alert
 from attackkg.kg import LogSourceRef
 from attackkg.llm import Reply, Session, ToolCall, extract_json_object
@@ -87,6 +87,30 @@ def test_toolbox_outputs(kg):
 def test_offline_backend(kg):
     res = triage_offline(kg, ALERT)
     assert res.mappings[0]["technique_id"] == "T1059.001"
+
+
+class TextOnly(Session):
+    def __init__(self, text):
+        super().__init__("system", [])
+        self.text = text
+
+    def send_user(self, text):
+        self.calls += 1
+        return Reply(text=self.text, stop="end")
+
+    def send_tool_results(self, results):
+        raise AssertionError("closed-book must not call tools")
+
+
+def test_closed_book_is_measured_and_filtered(kg):
+    answer = json.dumps({"mappings": [
+        {"technique_id": "T9001", "technique_name": "Old Scripting", "tactic": "Execution", "confidence": 0.9, "rationale": "r"},
+        {"technique_id": "T1059.001", "technique_name": "PowerShell", "tactic": "Execution", "confidence": 0.5, "rationale": "r"}]})
+    res = closed_book(kg, ALERT, TextOnly("Here you go:\n" + answer))
+    assert res.status == "partial" and res.llm_calls == 1
+    assert [m["technique_id"] for m in res.mappings] == ["T1059.001"]
+    assert res.rejected[0]["findings"][0]["rule"] == "revoked"
+    assert closed_book(kg, ALERT, TextOnly("I think it is PowerShell.")).detail == "no JSON answer"
 
 
 def test_extract_json_object():
