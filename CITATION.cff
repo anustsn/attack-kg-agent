@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software or its benchmark, please cite it as below."
+type: software
+title: "attack-kg-agent: Knowledge-graph validation and repair of LLM mappings to MITRE ATT&CK"
+abstract: >-
+  An LLM agent that maps security alerts to MITRE ATT&CK, grounded in an RDF
+  knowledge graph of ATT&CK v20 whose SPARQL rules and symbolic validator check
+  and repair its answers. Includes a benchmark built from SigmaHQ detection
+  rules and the results of four systems: keyword retrieval, the model answering
+  from memory, the same answers repaired through the graph, and the
+  graph-grounded agent.
+authors:
+  - family-names: Enkhzorigt
+    given-names: Anutsetsen
+    affiliation: Independent Researcher
+license: MIT
+repository-code: "https://github.com/anustsn/attack-kg-agent"
+version: 0.1.0
+date-released: "2026-11-08"
+keywords:
+  - large language models
+  - knowledge graph
+  - neuro-symbolic
+  - MITRE ATT&CK
+  - validation
+  - security operations

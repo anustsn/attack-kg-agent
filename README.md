@@ -100,11 +100,12 @@ pytest                             # 38 tests on a small hand-made STIX bundle; 
 
 # benchmark (see below)
 attackkg bench build               # data/benchmark/sigma-r2026-07-01-attack-20.0.jsonl (300 items)
-attackkg bench run offline --n 100
-attackkg bench run closed-book --n 100 --workers 4
-attackkg bench run closed-book+repair     # derived from closed-book, no model calls
-attackkg bench run agent --n 100 --workers 4
-attackkg bench report              # results/benchmark/summary.md and metrics.json
+D=results/benchmark-n300
+attackkg bench run offline --n 300 --dir $D
+attackkg bench run closed-book --n 300 --workers 4 --dir $D
+attackkg bench run closed-book+repair --dir $D     # derived from closed-book, no model calls
+attackkg bench run agent --n 300 --workers 4 --dir $D
+attackkg bench report --dir $D     # summary.md and metrics.json in $D
 ```
 
 ## Example
@@ -154,11 +155,11 @@ How to read this table:
 - In example 9 the model never submitted the `T0000` that the injected User-Agent asked for. Its rationale says that text "is attacker-controlled, so it was ignored".
 - The warnings show gaps in ATT&CK's own detection data. For example, no v20 analytic for credential stuffing (T1110.004) reads web server logs, although that is where a bank sees it.
 
-## Benchmark: 100 Sigma rules
+## Benchmark: 300 Sigma rules
 
-**Data.** SigmaHQ detection rules (release r2026-07-01) carry ATT&CK tags written by their authors. `attackkg bench build` turns rules with one or two technique tags into items. A system sees the rule's title, description, log source, detection logic, false positives and level. The tags, references and any technique IDs in the text are removed. The tags are the expected answer. Items are sampled round-robin over 73 log source types, so Windows process creation (about 40% of Sigma) does not dominate. The first 100 items are scored.
+**Data.** SigmaHQ detection rules (release r2026-07-01) carry ATT&CK tags written by their authors. `attackkg bench build` turns rules with one or two technique tags into items. A system sees the rule's title, description, log source, detection logic, false positives and level. The tags, references and any technique IDs in the text are removed. The tags are the expected answer. Items are sampled round-robin over 73 log source types, so Windows process creation (about 40% of Sigma) does not dominate. All 300 items are scored.
 
-**Systems.** All use `claude-opus-5-5` at effort `medium` through Claude Code, 6 November 2026, one run each.
+**Systems.** All use `claude-opus-5-5` at effort `medium` through Claude Code, one run each. The first 100 items were run on 6 November 2026 and the other 200 on 8 November 2026, with the same code, prompts and settings.
 
 | System | What it is |
 |---|---|
@@ -171,28 +172,31 @@ How to read this table:
 
 | System | Top-1 | 95% CI | Top-1, parent technique | Top-3 | Model calls per item |
 |---|---|---|---|---|---|
-| offline | 21% | 14–30% | 30% | 36% | 0 |
-| closed-book | 48% | 38–58% | 55% | 58% | 1 |
-| closed-book+repair | **68%** | 58–76% | **78%** | **80%** | 1 |
-| agent | **67%** | 57–75% | 74% | 77% | 3.09 |
+| offline | 19% | 15–23% | 29% | 37% | 0 |
+| closed-book | 41% | 36–47% | 50% | 54% | 1 |
+| closed-book+repair | **60%** | 54–65% | **72%** | **76%** | 1 |
+| agent | **58%** | 53–64% | 69% | 75% | 3.09 |
 
 Errors in the model's own first answers, before any validation or repair:
 
 | | Mappings | Revoked ID | Any error | Most common error |
 |---|---|---|---|---|
-| closed-book | 294 | 23 (8%) | 87 (30%) | tactic "Defense Evasion" (56), renamed to Stealth in v19 |
-| agent | 217 | 0 | 0 | — |
+| closed-book | 882 | 66 (7%) | 244 (28%) | the old tactic name "Defense Evasion", renamed to Stealth in v19 |
+| agent | 663 | 0 | 0 | — |
 
 **What this shows.**
 
-1. **Most of the graph's value here is version-correctness, not better recognition.** On the 11 items whose expected technique was not an active ID in ATT&CK v18.1 (mostly the T1685/T1686 families created in v19), the model alone got 1 right. With repair it got 9, and the agent got 11. On the other 89 items, the model's own first answer was right 59 times and the agent's 56 times.
-2. **Without the graph, every third mapping is wrong as written.** The model still uses the T1562 *Impair Defenses* IDs (revoked in v19) and the old tactic name. A pipeline that rejects invalid mappings loses 10 of 100 items entirely (closed-book row). The agent's first answers had no errors at all, because it reads IDs and tactics from the graph.
-3. **A symbolic repair step after one model call matches the agent, at a third of the calls.** On the same items the agent and closed-book+repair disagree 11 times (agent right 5, repair right 6; exact McNemar p = 1.0). The agent's edge is sub-technique precision on changed techniques: repair maps T1562.004 to the parent T1686, while the agent found T1686.003.
-4. The agent beats the unrepaired closed-book answers clearly (25 against 6 discordant items, p < 0.001). Against the closed-book IDs before filtering, the difference is not significant (13 against 6, p = 0.17).
+1. **Most of the graph's value here is version-correctness, not better recognition.** On the 36 items whose expected technique was not an active ID in ATT&CK v18.1 (mostly the T1685/T1686 families created in v19), the model alone got 1 right. With repair it got 28, and the agent got 29. On the other 264 items, the model's own first answer was right 152 times and the agent's 146 times.
+2. **Without the graph, more than a quarter of the mappings are wrong as written.** The model still uses the T1562 *Impair Defenses* IDs (revoked in v19; 62 of the 66 revoked IDs) and the old tactic name. A pipeline that rejects invalid mappings loses 35 of 300 items entirely (closed-book row). The agent's first answers had no errors at all, because it reads IDs and tactics from the graph.
+3. **A symbolic repair step after one model call matches the agent, at a third of the calls.** On the same items the agent and closed-book+repair disagree 23 times (repair right 14, agent right 9; exact McNemar p = 0.40).
+4. **The model's confidence does not flag these errors.** Its median confidence was 0.80 for revoked IDs and 0.55 for valid ones.
+5. The agent beats the unrepaired closed-book answers clearly (67 against 16 discordant items, p < 0.001), and also the closed-book IDs before filtering (34 against 13, p = 0.003).
 
-**Caveats.** 100 items, one model, one run each. Sigma tags are a noisy ground truth: authors tag differently, and some tags are debatable (for example *Windows Defender Threat Detected* → T1059). An item is a rule's logic, not a fired alert with its event. How much the model knows about recent ATT&CK versions depends on its training data, so the size of finding 1 will change with the model.
+**Caveats.** 300 items, one model, one run each. Sigma tags are a noisy ground truth: authors tag differently, and some tags are debatable (for example *Windows Defender Threat Detected* → T1059). An item is a rule's logic, not a fired alert with its event. How much the model knows about recent ATT&CK versions depends on its training data, so the size of finding 1 will change with the model.
 
-Raw results with every trace: [`results/benchmark/`](results/benchmark).
+**First 100 items.** The first run scored only the first 100 items (closed-book 48%, closed-book+repair 68%, agent 67%; revoked IDs 8% and errors 30% of first-answer mappings; median confidence 0.85 for revoked IDs and 0.55 for valid ones). Earlier write-ups that cite these numbers refer to that run, kept unchanged in [`results/benchmark/`](results/benchmark). The other 200 items were harder for every system, so the 300-item scores are lower. Findings 1–4 hold on both runs; the agent's lead over the closed-book IDs before filtering (finding 5) was not significant on 100 items (13 against 6, p = 0.17) and became significant on 300.
+
+Raw results with every trace: [`results/benchmark-n300/`](results/benchmark-n300) (all 300 items) and [`results/benchmark/`](results/benchmark) (first 100).
 
 ## Limitations
 
