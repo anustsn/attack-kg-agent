@@ -1,0 +1,87 @@
+{
+  "common_items": 300,
+  "systems": {
+    "offline": {
+      "n": 300,
+      "top1": 56,
+      "top1_ci95": [
+        0.14663682127589442,
+        0.23461972818935325
+      ],
+      "top1_parent": 88,
+      "top3": 110,
+      "first_answer_top1": 56,
+      "first_answer_mappings": 900,
+      "first_answer_invalid_id": 0,
+      "first_answer_any_error": 0,
+      "first_answer_errors_by_rule": {},
+      "no_answer": 0,
+      "refusal_or_error": 0,
+      "llm_calls_mean": 0.0
+    },
+    "closed-book": {
+      "n": 300,
+      "top1": 124,
+      "top1_ci95": [
+        0.35904776475728883,
+        0.469810429775652
+      ],
+      "top1_parent": 150,
+      "top3": 162,
+      "first_answer_top1": 154,
+      "first_answer_mappings": 882,
+      "first_answer_invalid_id": 66,
+      "first_answer_any_error": 244,
+      "first_answer_errors_by_rule": {
+        "name_mismatch": 3,
+        "revoked": 66,
+        "tactic_mismatch": 15,
+        "tactic_renamed": 163
+      },
+      "no_answer": 35,
+      "refusal_or_error": 0,
+      "llm_calls_mean": 1.0
+    },
+    "closed-book+repair": {
+      "n": 300,
+      "top1": 180,
+      "top1_ci95": [
+        0.5436355502609683,
+        0.6538357637394846
+      ],
+      "top1_parent": 215,
+      "top3": 229,
+      "first_answer_top1": 154,
+      "first_answer_mappings": 882,
+      "first_answer_invalid_id": 66,
+      "first_answer_any_error": 244,
+      "first_answer_errors_by_rule": {
+        "name_mismatch": 3,
+        "revoked": 66,
+        "tactic_mismatch": 15,
+        "tactic_renamed": 163
+      },
+      "no_answer": 0,
+      "refusal_or_error": 0,
+      "llm_calls_mean": 1.0
+    },
+    "agent": {
+      "n": 300,
+      "top1": 175,
+      "top1_ci95": [
+        0.5268345519290606,
+        0.6377248764046503
+      ],
+      "top1_parent": 207,
+      "top3": 224,
+      "first_answer_top1": 175,
+      "first_answer_mappings": 663,
+      "first_answer_invalid_id": 0,
+      "first_answer_any_error": 0,
+      "first_answer_errors_by_rule": {},
+      "no_answer": 0,
+      "refusal_or_error": 0,
+      "llm_calls_mean": 3.09
+    }
+  }
+}
